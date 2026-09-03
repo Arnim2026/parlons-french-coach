@@ -1,109 +1,21 @@
 const STORAGE_KEY = 'parlons-progress-v1';
-
-function defaultProgress(){
-  return { sessionsCompleted: 0, days: {}, milestonesShown: [], articles: {} };
-}
-
-function loadProgress(){
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultProgress();
-    const parsed = JSON.parse(raw);
-    return {
-      sessionsCompleted: Number(parsed.sessionsCompleted) || 0,
-      days: parsed.days && typeof parsed.days === 'object' ? parsed.days : {},
-      milestonesShown: Array.isArray(parsed.milestonesShown) ? parsed.milestonesShown : [],
-      articles: parsed.articles && typeof parsed.articles === 'object' ? parsed.articles : {}
-    };
-  } catch { return defaultProgress(); }
-}
-
-function saveProgress(progress){ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
-function todayKey(){ return new Date().toISOString().slice(0,10); }
-
-function dayRecord(progress){
-  const key = todayKey();
-  if (!progress.days[key]) progress.days[key] = { article1:false, article2:false, conversation:false, vocabulary:false };
-  return progress.days[key];
-}
-
-function markProgress(step){
-  const progress = loadProgress();
-  const day = dayRecord(progress);
-  day[step] = true;
-  saveProgress(progress);
-  return progress;
-}
-
-function recordArticleOpened(article){
-  const progress = loadProgress();
-  const key = `${todayKey()}-${article.slot}`;
-  const existing = progress.articles[key] || {};
-  progress.articles[key] = {
-    date: todayKey(), slot: article.slot, title: article.title, source: article.source, url: article.url,
-    openedAt: existing.openedAt || new Date().toISOString(),
-    interest: existing.interest || null, difficulty: existing.difficulty || null
-  };
-  saveProgress(progress);
-  return progress;
-}
-
-function recordArticleRating(article, rating){
-  const progress = loadProgress();
-  const key = `${todayKey()}-${article.slot}`;
-  const existing = progress.articles[key] || {};
-  progress.articles[key] = {
-    date: todayKey(), slot: article.slot, title: article.title, source: article.source, url: article.url,
-    openedAt: existing.openedAt || new Date().toISOString(),
-    interest: String(rating.interest), difficulty: String(rating.difficulty)
-  };
-  saveProgress(progress);
-  return progress;
-}
-
-function articleStats(progress){
-  const articles = Object.values(progress.articles || {});
-  const rated = articles.filter(a => a.interest && a.difficulty);
-  const average = key => rated.length ? rated.reduce((sum,a) => sum + Number(a[key]), 0) / rated.length : null;
-  return {
-    read: articles.length, rated: rated.length,
-    averageInterest: average('interest'), averageDifficulty: average('difficulty'),
-    recent: articles.slice(-10).reverse()
-  };
-}
-
-function completeConversation(){
-  const progress = loadProgress();
-  const day = dayRecord(progress);
-  if (day.conversation) return { progress, newSession:false };
-  day.conversation = true;
-  progress.sessionsCompleted += 1;
-  saveProgress(progress);
-  return { progress, newSession:true };
-}
-
-function completedFullDays(progress){
-  return Object.values(progress.days).filter(d => d.article1 && d.article2 && d.conversation).length;
-}
-function completedVocabularyDays(progress){
-  return Object.values(progress.days).filter(d => d.vocabulary).length;
-}
-
-function milestoneMessage(count){
-  const next = count + 10;
-  const tone = count === 10
-    ? `Tu viens de terminer ${count} séances de Parlons — et ça, c’est une vraie réussite !`
-    : `Tu viens de franchir le cap des ${count} séances de Parlons — bravo pour ta régularité !`;
-  return `Bravo Valérie ! 🎉\n\n${tone}\n\nEn ${count} séances, tu as pris le temps de lire, de réfléchir, de parler en français et de défendre tes idées. Le plus important n’est pas d’avoir parlé sans faire d’erreurs : c’est d’avoir osé parler, poser des questions et continuer même quand le français n’était pas facile.\n\n💬 Ton parcours et tes progrès vont maintenant être évalués. Un message sur tes progrès sera automatiquement envoyé à ton parent, avec notamment ce que tu as amélioré et ce que tu peux encore travailler.\n\n🎁 Et parce que ${count} séances, ça mérite d’être célébré… tu peux aussi t’attendre à une petite récompense !\n\nAlors, prends un moment pour être fière de toi.\n${count} séances de faites. La prochaine étape ? ${next}. 😉\n\nÀ bientôt pour la suite de Parlons ! 🇫🇷✨`;
-}
-
-function maybeShowMilestone(){
-  const progress = loadProgress();
-  const count = progress.sessionsCompleted;
-  if (!count || count % 10 !== 0 || progress.milestonesShown.includes(count)) return null;
-  progress.milestonesShown.push(count);
-  saveProgress(progress);
-  return milestoneMessage(count);
-}
-
-window.ParlonsProgress = { loadProgress, saveProgress, markProgress, recordArticleOpened, recordArticleRating, articleStats, completeConversation, completedFullDays, completedVocabularyDays, maybeShowMilestone };
+const CLIENT_KEY = 'parlons-client-id-v1';
+function defaultProgress(){return{sessionsCompleted:0,days:{},milestonesShown:[],articles:{}};}
+function getClientId(){let id=localStorage.getItem(CLIENT_KEY);if(!id){id=crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;localStorage.setItem(CLIENT_KEY,id);}return id.replace(/[^A-Za-z0-9_-]/g,'').slice(0,80);}
+function loadProgress(){try{const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!p)return defaultProgress();return{sessionsCompleted:Number(p.sessionsCompleted)||0,days:p.days&&typeof p.days==='object'?p.days:{},milestonesShown:Array.isArray(p.milestonesShown)?p.milestonesShown:[],articles:p.articles&&typeof p.articles==='object'?p.articles:{}};}catch{return defaultProgress();}}
+function saveProgress(p){localStorage.setItem(STORAGE_KEY,JSON.stringify(p));}
+function todayKey(){return new Date().toISOString().slice(0,10);}
+function dayRecord(p){const k=todayKey();if(!p.days[k])p.days[k]={article1:false,article2:false,conversation:false,vocabulary:false};return p.days[k];}
+function markProgress(step){const p=loadProgress();dayRecord(p)[step]=true;saveProgress(p);return p;}
+function syncEvent(type,payload={}){const eventId=`${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`;fetch('/api/progress',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId:getClientId(),eventId,date:todayKey(),type,...payload})}).catch(()=>{});}
+function recordArticleOpened(article){const p=loadProgress(),k=`${todayKey()}-${article.slot}`,old=p.articles[k]||{};p.articles[k]={date:todayKey(),slot:article.slot,title:article.title,source:article.source,url:article.url,openedAt:old.openedAt||new Date().toISOString(),interest:old.interest||null,difficulty:old.difficulty||null};saveProgress(p);syncEvent('article_opened',{article:p.articles[k]});return p;}
+function recordArticleRating(article,rating){const p=loadProgress(),k=`${todayKey()}-${article.slot}`,old=p.articles[k]||{};p.articles[k]={date:todayKey(),slot:article.slot,title:article.title,source:article.source,url:article.url,openedAt:old.openedAt||new Date().toISOString(),interest:String(rating.interest),difficulty:String(rating.difficulty)};saveProgress(p);syncEvent('article_rated',{article:p.articles[k],rating:{interest:String(rating.interest),difficulty:String(rating.difficulty)}});return p;}
+function recordVocabularyCompleted(){const p=loadProgress();dayRecord(p).vocabulary=true;saveProgress(p);syncEvent('vocabulary_completed');return p;}
+function recordSessionCompleted(details={}){syncEvent('session_completed',details);}
+function articleStats(p){const a=Object.values(p.articles||{}),r=a.filter(x=>x.interest&&x.difficulty),avg=k=>r.length?r.reduce((s,x)=>s+Number(x[k]),0)/r.length:null;return{read:a.length,rated:r.length,averageInterest:avg('interest'),averageDifficulty:avg('difficulty'),recent:a.slice(-10).reverse()};}
+function completeConversation(){const p=loadProgress(),d=dayRecord(p);if(d.conversation)return{progress:p,newSession:false};d.conversation=true;p.sessionsCompleted+=1;saveProgress(p);return{progress:p,newSession:true};}
+function completedFullDays(p){return Object.values(p.days).filter(d=>d.article1&&d.article2&&d.conversation).length;}
+function completedVocabularyDays(p){return Object.values(p.days).filter(d=>d.vocabulary).length;}
+function milestoneMessage(count){const next=count+10,tone=count===10?`Tu viens de terminer ${count} séances de Parlons — et ça, c’est une vraie réussite !`:`Tu viens de franchir le cap des ${count} séances de Parlons — bravo pour ta régularité !`;return`Bravo Valérie ! 🎉\n\n${tone}\n\nEn ${count} séances, tu as pris le temps de lire, de réfléchir, de parler en français et de défendre tes idées. Le plus important n’est pas d’avoir parlé sans faire d’erreurs : c’est d’avoir osé parler, poser des questions et continuer même quand le français n’était pas facile.\n\n💬 Ton parcours et tes progrès vont maintenant être évalués. Un message sur tes progrès sera automatiquement envoyé à ton parent, avec notamment ce que tu as amélioré et ce que tu peux encore travailler.\n\n🎁 Et parce que ${count} séances, ça mérite d’être célébré… tu peux aussi t’attendre à une petite récompense !\n\nAlors, prends un moment pour être fière de toi.\n${count} séances de faites. La prochaine étape ? ${next}. 😉\n\nÀ bientôt pour la suite de Parlons ! 🇫🇷✨`;}
+function maybeShowMilestone(){const p=loadProgress(),c=p.sessionsCompleted;if(!c||c%10!==0||p.milestonesShown.includes(c))return null;p.milestonesShown.push(c);saveProgress(p);return milestoneMessage(c);}
+window.ParlonsProgress={loadProgress,saveProgress,markProgress,recordArticleOpened,recordArticleRating,recordVocabularyCompleted,recordSessionCompleted,articleStats,completeConversation,completedFullDays,completedVocabularyDays,maybeShowMilestone};
