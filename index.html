@@ -40,24 +40,24 @@
           <span class="complete-label" id="reading-complete"></span>
         </div>
         <div class="article-grid">
-          <article class="article-card" data-article-card="europe">
+          <article class="article-card" data-article-card="world">
             <div class="article-meta"><span class="topic world">MONDE</span><span>8 min</span></div>
-            <h3>L'Europe repense sa place dans un monde en mouvement</h3>
-            <p class="source">Parlons · synthèse pédagogique</p>
-            <p>Les dirigeants européens cherchent un nouvel équilibre entre autonomie, alliances et commerce.</p>
-            <button class="read-button" data-article="europe">Lire l'article <span>→</span></button>
-            <div class="ratings pending-rating" data-ratings="europe" aria-label="Évaluation non renseignée">
-              <span>Lis l’article avant de l’évaluer.</span>
+            <h3 id="article-title-world">Russia Is Testing NATO's Ability to Hold Back From a Hot War</h3>
+            <p class="source" id="article-source-world">The Wall Street Journal · Aujourd'hui</p>
+            <p id="article-summary-world">Article international sélectionné dans le flux RSS du journal.</p>
+            <a class="read-button" id="article-link-world" data-article="world" href="https://www.wsj.com/world/europe/russia-is-testing-natos-ability-to-hold-back-from-a-hot-war-6ef687db" target="_blank" rel="noopener">Lire sur le site du journal <span>↗</span></a>
+            <div class="ratings pending-rating" data-ratings="world" aria-label="Évaluation non renseignée">
+              <span>Ouvre l’article avant de l’évaluer.</span>
             </div>
           </article>
-          <article class="article-card" data-article-card="ia">
+          <article class="article-card" data-article-card="business">
             <div class="article-meta"><span class="topic ai">IA & ÉCONOMIE</span><span>6 min</span></div>
-            <h3>Quand l'intelligence artificielle transforme le premier emploi</h3>
-            <p class="source">Parlons · synthèse pédagogique</p>
-            <p>De nouvelles compétences deviennent essentielles pour les jeunes qui entrent sur le marché du travail.</p>
-            <button class="read-button" data-article="ia">Lire l'article <span>→</span></button>
-            <div class="ratings pending-rating" data-ratings="ia" aria-label="Évaluation non renseignée">
-              <span>Lis l’article avant de l’évaluer.</span>
+            <h3 id="article-title-business">Microsoft to Change Reporting Structure to Reflect Effects of AI</h3>
+            <p class="source" id="article-source-business">The Wall Street Journal · Aujourd'hui</p>
+            <p id="article-summary-business">Article sur l’IA et l’économie sélectionné dans le flux RSS du journal.</p>
+            <a class="read-button" id="article-link-business" data-article="business" href="https://www.wsj.com/tech/ai/microsoft-to-change-reporting-structure-to-reflect-effects-of-ai-59dce66d" target="_blank" rel="noopener">Lire sur le site du journal <span>↗</span></a>
+            <div class="ratings pending-rating" data-ratings="business" aria-label="Évaluation non renseignée">
+              <span>Ouvre l’article avant de l’évaluer.</span>
             </div>
           </article>
         </div>
@@ -106,16 +106,7 @@
       <div class="answer-box" id="answer-box" hidden><textarea aria-label="Ta réponse en français" placeholder="À mon avis…"></textarea><button id="send-answer">Envoyer ma réponse</button></div>
     </div>
   </div>
-  <div class="modal" id="article-modal" role="dialog" aria-modal="true" aria-labelledby="article-modal-title" hidden>
-    <article class="modal-card article-reader">
-      <button class="close" id="close-article" aria-label="Fermer">×</button>
-      <p class="coach-label" id="article-modal-topic">PARLONS · ACTUALITÉ</p>
-      <h2 id="article-modal-title"></h2>
-      <div id="article-modal-body" class="article-body"></div>
-      <button class="primary-button" id="finish-article">J’ai terminé la lecture</button>
-    </article>
-  </div>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=4"></script>
+  <script src="app-v5.js?v=1"></script>
 </body>
 </html>
