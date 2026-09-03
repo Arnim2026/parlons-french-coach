@@ -2,21 +2,21 @@
   "updated": "2026-09-03",
   "articles": [
     {
-      "slot": "world",
+      "source": "The New York Times",
       "category": "world",
-      "title": "Russia Is Testing NATO's Ability to Hold Back From a Hot War",
-      "source": "The Wall Street Journal",
-      "published": "2026-09-03T09:00:00Z",
-      "url": "https://www.wsj.com/world/europe/russia-is-testing-natos-ability-to-hold-back-from-a-hot-war-6ef687db",
+      "title": "Through the Hands of Strangers, Missing Iranian Artists Put on a Show in L.A.",
+      "url": "https://www.nytimes.com/2026/09/03/arts/design/iranian-artists-los-angeles-the-brick.html",
+      "published": "2026-09-03T15:41:12.000Z",
+      "slot": "world",
       "label": "Politique internationale · article original"
     },
     {
-      "slot": "business",
+      "source": "The Washington Post",
       "category": "business",
-      "title": "Microsoft to Change Reporting Structure to Reflect Effects of AI",
-      "source": "The Wall Street Journal",
-      "published": "2026-09-03T09:00:00Z",
-      "url": "https://www.wsj.com/tech/ai/microsoft-to-change-reporting-structure-to-reflect-effects-of-ai-59dce66d",
+      "title": "Watch out, Detroit: Chinese automakers are increasingly going global",
+      "url": "https://www.washingtonpost.com/business/2026/09/02/watch-out-detroit-chinese-automakers-are-increasingly-going-global/",
+      "published": "2026-09-03T14:00:00.000Z",
+      "slot": "business",
       "label": "IA, entreprise et économie · article original"
     }
   ]
