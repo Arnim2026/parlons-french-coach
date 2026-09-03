@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'parlons-progress-v1';
 
 function defaultProgress(){
-  return { sessionsCompleted: 0, days: {}, milestonesShown: [] };
+  return { sessionsCompleted: 0, days: {}, milestonesShown: [], articles: {} };
 }
 
 function loadProgress(){
@@ -12,13 +12,13 @@ function loadProgress(){
     return {
       sessionsCompleted: Number(parsed.sessionsCompleted) || 0,
       days: parsed.days && typeof parsed.days === 'object' ? parsed.days : {},
-      milestonesShown: Array.isArray(parsed.milestonesShown) ? parsed.milestonesShown : []
+      milestonesShown: Array.isArray(parsed.milestonesShown) ? parsed.milestonesShown : [],
+      articles: parsed.articles && typeof parsed.articles === 'object' ? parsed.articles : {}
     };
   } catch { return defaultProgress(); }
 }
 
 function saveProgress(progress){ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
-
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
 function dayRecord(progress){
@@ -35,6 +35,43 @@ function markProgress(step){
   return progress;
 }
 
+function recordArticleOpened(article){
+  const progress = loadProgress();
+  const key = `${todayKey()}-${article.slot}`;
+  const existing = progress.articles[key] || {};
+  progress.articles[key] = {
+    date: todayKey(), slot: article.slot, title: article.title, source: article.source, url: article.url,
+    openedAt: existing.openedAt || new Date().toISOString(),
+    interest: existing.interest || null, difficulty: existing.difficulty || null
+  };
+  saveProgress(progress);
+  return progress;
+}
+
+function recordArticleRating(article, rating){
+  const progress = loadProgress();
+  const key = `${todayKey()}-${article.slot}`;
+  const existing = progress.articles[key] || {};
+  progress.articles[key] = {
+    date: todayKey(), slot: article.slot, title: article.title, source: article.source, url: article.url,
+    openedAt: existing.openedAt || new Date().toISOString(),
+    interest: String(rating.interest), difficulty: String(rating.difficulty)
+  };
+  saveProgress(progress);
+  return progress;
+}
+
+function articleStats(progress){
+  const articles = Object.values(progress.articles || {});
+  const rated = articles.filter(a => a.interest && a.difficulty);
+  const average = key => rated.length ? rated.reduce((sum,a) => sum + Number(a[key]), 0) / rated.length : null;
+  return {
+    read: articles.length, rated: rated.length,
+    averageInterest: average('interest'), averageDifficulty: average('difficulty'),
+    recent: articles.slice(-10).reverse()
+  };
+}
+
 function completeConversation(){
   const progress = loadProgress();
   const day = dayRecord(progress);
@@ -48,14 +85,16 @@ function completeConversation(){
 function completedFullDays(progress){
   return Object.values(progress.days).filter(d => d.article1 && d.article2 && d.conversation).length;
 }
-
 function completedVocabularyDays(progress){
   return Object.values(progress.days).filter(d => d.vocabulary).length;
 }
 
 function milestoneMessage(count){
   const next = count + 10;
-  return `Bravo Valérie ! 🎉\n\nTu viens de terminer ${count} séances de Parlons — et ça, c’est une vraie réussite !\n\nEn ${count} séances, tu as pris le temps de lire, de réfléchir, de parler en français et de défendre tes idées. Le plus important n’est pas d’avoir parlé sans faire d’erreurs : c’est d’avoir osé parler, poser des questions et continuer même quand le français n’était pas facile.\n\n💬 Ton parcours et tes progrès vont maintenant être évalués. Un message sur tes progrès sera automatiquement envoyé à ton parent, avec notamment ce que tu as amélioré et ce que tu peux encore travailler.\n\n🎁 Et parce que ${count} séances, ça mérite d’être célébré… tu peux aussi t’attendre à une petite récompense !\n\nAlors, prends un moment pour être fière de toi.\n${count} séances de faites. La prochaine étape ? ${next}. 😉\n\nÀ bientôt pour la suite de Parlons ! 🇫🇷✨`;
+  const tone = count === 10
+    ? `Tu viens de terminer ${count} séances de Parlons — et ça, c’est une vraie réussite !`
+    : `Tu viens de franchir le cap des ${count} séances de Parlons — bravo pour ta régularité !`;
+  return `Bravo Valérie ! 🎉\n\n${tone}\n\nEn ${count} séances, tu as pris le temps de lire, de réfléchir, de parler en français et de défendre tes idées. Le plus important n’est pas d’avoir parlé sans faire d’erreurs : c’est d’avoir osé parler, poser des questions et continuer même quand le français n’était pas facile.\n\n💬 Ton parcours et tes progrès vont maintenant être évalués. Un message sur tes progrès sera automatiquement envoyé à ton parent, avec notamment ce que tu as amélioré et ce que tu peux encore travailler.\n\n🎁 Et parce que ${count} séances, ça mérite d’être célébré… tu peux aussi t’attendre à une petite récompense !\n\nAlors, prends un moment pour être fière de toi.\n${count} séances de faites. La prochaine étape ? ${next}. 😉\n\nÀ bientôt pour la suite de Parlons ! 🇫🇷✨`;
 }
 
 function maybeShowMilestone(){
@@ -67,4 +106,4 @@ function maybeShowMilestone(){
   return milestoneMessage(count);
 }
 
-window.ParlonsProgress = { loadProgress, saveProgress, markProgress, completeConversation, completedFullDays, completedVocabularyDays, maybeShowMilestone };
+window.ParlonsProgress = { loadProgress, saveProgress, markProgress, recordArticleOpened, recordArticleRating, articleStats, completeConversation, completedFullDays, completedVocabularyDays, maybeShowMilestone };
