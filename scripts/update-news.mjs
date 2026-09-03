@@ -63,22 +63,45 @@ const topicWords = {
 
 function relevance(item) {
   const title = item.title.toLowerCase();
-  const keywordScore = topicWords[item.category].reduce((score, word) => score + (title.includes(word) ? 1 : 0), 0);
-  const ageHours = Math.max(0, (Date.now() - Date.parse(item.published)) / 36e5);
-  return keywordScore * 100 - Math.min(ageHours, 96);
+  return topicWords[item.category].reduce((score, word) => score + (title.includes(word) ? 1 : 0), 0);
 }
 
-function choose(candidates, category, excludeSource) {
+function isSameUtcDay(item, today) {
+  return item.published.slice(0, 10) === today;
+}
+
+function choose(candidates, category, excludeSource, today) {
   const matching = candidates
     .filter(item => item.category === category)
-    .sort((a, b) => relevance(b) - relevance(a));
-  return matching.find(item => item.source !== excludeSource) || matching[0];
+    .filter(item => !Number.isNaN(Date.parse(item.published)))
+    .sort((a, b) => {
+      const dateDiff = Date.parse(b.published) - Date.parse(a.published);
+      if (dateDiff !== 0) return dateDiff;
+      return relevance(b) - relevance(a);
+    });
+
+  // First choice: an article actually published today (UTC), not merely an
+  // older article that happens to be highly relevant.
+  const todayMatches = matching.filter(item => isSameUtcDay(item, today));
+  const preferredToday = todayMatches.find(item => item.source !== excludeSource);
+  if (preferredToday) return preferredToday;
+  if (todayMatches[0]) return todayMatches[0];
+
+  // Fallback: if the feeds do not contain a same-day article, use the most
+  // recent suitable article rather than silently choosing something several
+  // days old because of keyword relevance.
+  const recentCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const recentMatches = matching.filter(item => Date.parse(item.published) >= recentCutoff);
+  const preferredRecent = recentMatches.find(item => item.source !== excludeSource);
+  if (preferredRecent) return preferredRecent;
+  return recentMatches[0];
 }
 
 const results = await Promise.allSettled(feeds.map(fetchFeed));
 const candidates = results.flatMap(result => result.status === 'fulfilled' ? result.value : []);
-const world = choose(candidates, 'world');
-const business = choose(candidates, 'business', world?.source);
+const today = new Date().toISOString().slice(0, 10);
+const world = choose(candidates, 'world', undefined, today);
+const business = choose(candidates, 'business', world?.source, today);
 
 if (!world || !business) {
   const previous = JSON.parse(await readFile('articles.json', 'utf8'));
@@ -86,7 +109,6 @@ if (!world || !business) {
   process.exit(0);
 }
 
-const today = new Date().toISOString().slice(0, 10);
 const output = {
   updated: today,
   articles: [
@@ -95,5 +117,9 @@ const output = {
   ]
 };
 
+const freshness = [world, business]
+  .map(item => `${item.source}: ${item.published.slice(0, 10)}${isSameUtcDay(item, today) ? ' (today)' : ' (fallback)'}`)
+  .join(' | ');
+
 await writeFile('articles.json', `${JSON.stringify(output, null, 2)}\n`);
-console.log(`Selected daily articles for ${today}: ${world.source} and ${business.source}.`);
+console.log(`Selected daily articles for ${today}: ${freshness}.`);
