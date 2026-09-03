@@ -1,5 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
+// Daily RSS selection and publication for Parlons.
+
 const feeds = [
   { source: 'The New York Times', category: 'world', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml' },
   { source: 'The New York Times', category: 'business', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml' },
