@@ -2,20 +2,20 @@
   "updated": "2026-09-03",
   "articles": [
     {
-      "source": "The New York Times",
+      "source": "The Washington Post",
       "category": "world",
-      "title": "Through the Hands of Strangers, Missing Iranian Artists Put on a Show in L.A.",
-      "url": "https://www.nytimes.com/2026/09/03/arts/design/iranian-artists-los-angeles-the-brick.html",
-      "published": "2026-09-03T15:41:12.000Z",
+      "title": "Iran fires missiles and drones at Kuwait as strikes resume in war with U.S.",
+      "url": "https://www.washingtonpost.com/world/2026/09/03/iran-fires-missiles-drones-kuwait-strikes-resume-us-war/",
+      "published": "2026-09-03T14:39:26.000Z",
       "slot": "world",
       "label": "Politique internationale · article original"
     },
     {
-      "source": "The Washington Post",
+      "source": "The New York Times",
       "category": "business",
-      "title": "Watch out, Detroit: Chinese automakers are increasingly going global",
-      "url": "https://www.washingtonpost.com/business/2026/09/02/watch-out-detroit-chinese-automakers-are-increasingly-going-global/",
-      "published": "2026-09-03T14:00:00.000Z",
+      "title": "In a Big Win, Google Won’t Have to Break Up Its Ad Tech Business, Court Rules",
+      "url": "https://www.nytimes.com/2026/09/02/technology/google-ad-tech-remedies.html",
+      "published": "2026-09-02T20:50:31.000Z",
       "slot": "business",
       "label": "IA, entreprise et économie · article original"
     }
