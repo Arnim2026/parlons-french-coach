@@ -10,9 +10,18 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   update:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,3 +40,12 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Update daily newspaper links"
           git push
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload updated site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy updated site
+        id: deployment
+        uses: actions/deploy-pages@v4
