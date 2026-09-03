@@ -54,10 +54,22 @@ async function fetchFeed(feed) {
   return parseItems(await response.text(), feed);
 }
 
+const topicWords = {
+  world: ['war', 'government', 'president', 'minister', 'election', 'nato', 'russia', 'china', 'iran', 'israel', 'ukraine', 'diplomacy', 'sanction', 'military', 'missile', 'conflict', 'nuclear', 'trade', 'summit', 'policy'],
+  business: ['ai', 'artificial intelligence', 'business', 'economy', 'economic', 'company', 'market', 'technology', 'tech', 'trade', 'finance', 'bank', 'jobs', 'microsoft', 'google', 'nvidia']
+};
+
+function relevance(item) {
+  const title = item.title.toLowerCase();
+  const keywordScore = topicWords[item.category].reduce((score, word) => score + (title.includes(word) ? 1 : 0), 0);
+  const ageHours = Math.max(0, (Date.now() - Date.parse(item.published)) / 36e5);
+  return keywordScore * 100 - Math.min(ageHours, 96);
+}
+
 function choose(candidates, category, excludeSource) {
   const matching = candidates
     .filter(item => item.category === category)
-    .sort((a, b) => Date.parse(b.published) - Date.parse(a.published));
+    .sort((a, b) => relevance(b) - relevance(a));
   return matching.find(item => item.source !== excludeSource) || matching[0];
 }
 
