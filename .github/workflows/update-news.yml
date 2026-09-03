@@ -1,0 +1,33 @@
+name: Update daily newspaper links
+
+on:
+  schedule:
+    - cron: "15 5 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/update-news.mjs"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Select two articles from RSS feeds
+        run: node scripts/update-news.mjs
+      - name: Publish the article selection
+        run: |
+          git config user.name "Parlons daily updater"
+          git config user.email "actions@users.noreply.github.com"
+          git add articles.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Update daily newspaper links"
+          git push
