@@ -41,8 +41,12 @@ export default async function handler(req, res) {
     const apiKey=process.env.OPENAI_API_KEY; if(!apiKey) throw new Error('OPENAI_API_KEY is not configured.');
     const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-5-mini',store:false,input:prompt,text:{format:{type:'json_object'}},max_output_tokens:900})});
     const data=await response.json(); if(!response.ok) throw new Error(data?.error?.message||'Evaluation generation failed.');
-    const text=data.output_text||data.output?.flatMap(x=>x.content||[]).map(x=>x.text||'').join('')||'';
-    if(!text) throw new Error('Evaluation returned no structured output.');
+    const outputItems=Array.isArray(data?.output)?data.output:[];
+    const text=outputItems.flatMap(item=>Array.isArray(item?.content)?item.content:[]).map(content=>typeof content?.text==='string'?content.text:'').filter(Boolean).join('') || (typeof data?.output_text==='string'?data.output_text:'');
+    if(!text) {
+      const refusal=outputItems.flatMap(item=>Array.isArray(item?.content)?item.content:[]).map(content=>content?.refusal).filter(Boolean).join('');
+      throw new Error(refusal?`Evaluation refused: ${clampText(refusal,180)}`:'Evaluation returned no text output.');
+    }
     let parsed;
     try { parsed=JSON.parse(text); } catch(error) { throw new Error(`Evaluation returned invalid JSON: ${clampText(text,180)}`); }
     return {parsed,fullDays,vocabDays,ratedCount:rated.length,avgInterest:avg('interest'),avgDifficulty:avg('difficulty')};
