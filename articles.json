@@ -1,21 +1,21 @@
 {
-  "updated": "2026-09-04",
+  "updated": "2026-09-05",
   "articles": [
     {
       "source": "The New York Times",
       "category": "world",
-      "title": "Mayor Magic",
-      "url": "https://www.nytimes.com/2026/09/03/world/mayors-mamdani-burnham-gloria-steinem.html",
-      "published": "2026-09-04T05:03:40.000Z",
+      "title": "German Far-Right Surges, in Threat to Postwar Taboo on Extremists in Power",
+      "url": "https://www.nytimes.com/2026/09/05/world/europe/germany-afd-saxony-anhalt.html",
+      "published": "2026-09-05T04:01:07.000Z",
       "slot": "world",
       "label": "Politique internationale · article original"
     },
     {
-      "source": "The Washington Post",
+      "source": "The New York Times",
       "category": "business",
-      "title": "Longtime host Maria Bartiromo out at Fox News",
-      "url": "https://www.washingtonpost.com/business/2026/09/03/longtime-host-maria-bartiromo-abruptly-departs-fox-news/",
-      "published": "2026-09-04T03:11:29.000Z",
+      "title": "Court Filings In A.I. Suit Invoke Copyright Law, Culture and Sports",
+      "url": "https://www.nytimes.com/2026/09/04/technology/openai-microsoft-new-york-times-lawsuit.html",
+      "published": "2026-09-05T00:18:57.000Z",
       "slot": "business",
       "label": "IA, entreprise et économie · article original"
     }
